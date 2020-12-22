@@ -54,6 +54,7 @@ void update(Entity& e, const float dt)
 	e.vel.y += e.acc.y * dt;
 	e.pos.x += e.vel.x * dt;
 	e.pos.y += e.vel.y * dt;
+    e.color = {0, 0, 0, 255};
 }
 
 void updateAll(std::vector<Entity>& v, const float dt)
@@ -62,6 +63,26 @@ void updateAll(std::vector<Entity>& v, const float dt)
 	{
 		update(v[i], dt);
 	}
+}
+
+void checkCollision(Entity& e1, Entity& e2)
+{
+    if(e1.pos.x < e2.pos.x + 50 && e1.pos.x + 50 > e2.pos.x && e1.pos.y < e2.pos.y + 50 && e1.pos.y + 50 > e2.pos.y)
+    {
+        e1.color = {e1.color.r + 50, e1.color.g + 50, e1.color.b + 50, 255};
+        e2.color = {e2.color.r + 50, e2.color.g + 50, e2.color.b + 50, 255};
+    }
+}
+
+void checkAllCollisions(std::vector<Entity>& v)
+{
+    for(int i = 0; i < v.size(); i++)
+    {
+        for(int j = i + 1; j < v.size(); j++)
+        {
+            checkCollision(v[i], v[j]);
+        }
+    }
 }
 
 
@@ -95,30 +116,50 @@ int main(int argc, char* args[])
 	std::vector<Entity> es;
 	for (int i = 0; i < 5; i++)
 	{
-		es.push_back({ { 0.0f, (float)(i * 60 + 100) }, 
-					   { (float)(50 * i + 100), -200.f },
+		es.push_back({ { 0.0f, (float)(300) }, 
+					   { (float)(50 * i + 100), -300.f },
 					   { 0.0f, 200.0f },
-					   { rand() % 255, rand() % 255, rand() % 255, 255 } });
+					   { 0, 0, 0, 255 } });
 	}
 	
 	Color bg = { 0, 75, 0, 255 };
 	SDL_SetRenderDrawColor(renderer, bg.r, bg.g, bg.b, bg.a);
 	long old_time = SDL_GetTicks();
-
-	while(SDL_GetTicks() < 3000)
+    bool quit = false;
+    
+	while(!quit)
 	{
 		long new_time = SDL_GetTicks();
 		float dt = (float)(new_time - old_time) / 1000;
 		old_time = new_time;
-		std::cout << "ticks: " << SDL_GetTicks() << "\tdt: ~" << dt << "\tFPS: ~" << 1/dt << std::endl;
+		// std::cout << "ticks: " << SDL_GetTicks() << "\tdt: ~" << dt << "\tFPS: ~" << 1/dt << std::endl;
 
 		SDL_RenderClear(renderer);
 
 		updateAll(es, dt);
+        checkAllCollisions(es);
 		drawAll(es, renderer);
 
 		SDL_RenderPresent(renderer);
 		SDL_SetRenderDrawColor(renderer, bg.r, bg.g, bg.b, bg.a);
+        
+		SDL_Event event;
+        while(SDL_PollEvent(&event)){  /* Loop until there are no events left on the queue */
+            switch(event.type) {  /* Process the appropiate event type */
+                case SDL_KEYDOWN:  /* Handle a KEYDOWN event */
+                    if(event.key.keysym.sym == SDLK_ESCAPE)
+                    {
+                        printf("Quitting\n");
+                        quit = true;
+                    }
+                    break;
+                case SDL_MOUSEBUTTONDOWN:
+                    printf("Oh! Mouse down\n");
+                    break;
+                default: /* Report an unhandled event */
+                    printf("I don't know what this event is!\n");
+            }
+        }
 	}
 
 	std::cout << "Window closing" << std::endl;
