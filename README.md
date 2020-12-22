@@ -2,7 +2,7 @@
 
 #### Written in C++ with SDL2
 
-Entities are all blocks.
+Entities are all blocks of variable width and height.
 
 Current features:
 - motion

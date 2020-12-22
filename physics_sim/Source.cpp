@@ -28,11 +28,13 @@ struct Entity {
 	Vec2 vel;
 	Vec2 acc;
 	Color color;
+    unsigned int width;
+    unsigned int height;
 };
 
 void draw(const Entity& e, SDL_Renderer* renderer)
 {
-	SDL_Rect rect = { (int)(e.pos.x), (int)(e.pos.y), 50, 50 };
+	SDL_Rect rect = { (int)(e.pos.x), (int)(e.pos.y), e.width, e.height };
 
 	SDL_SetRenderDrawColor(renderer, e.color.r, e.color.g, e.color.b, e.color.a);
 	SDL_RenderFillRect(renderer, &rect);
@@ -67,7 +69,10 @@ void updateAll(std::vector<Entity>& v, const float dt)
 
 void checkCollision(Entity& e1, Entity& e2)
 {
-    if(e1.pos.x < e2.pos.x + 50 && e1.pos.x + 50 > e2.pos.x && e1.pos.y < e2.pos.y + 50 && e1.pos.y + 50 > e2.pos.y)
+    if(e1.pos.x < e2.pos.x + e2.width &&
+       e1.pos.x + e1.width > e2.pos.x &&
+       e1.pos.y < e2.pos.y + e2.height && 
+       e1.pos.y + e1.height > e2.pos.y)
     {
         e1.color = {e1.color.r + 50, e1.color.g + 50, e1.color.b + 50, 255};
         e2.color = {e2.color.r + 50, e2.color.g + 50, e2.color.b + 50, 255};
@@ -119,7 +124,9 @@ int main(int argc, char* args[])
 		es.push_back({ { 0.0f, (float)(300) }, 
 					   { (float)(50 * i + 100), -300.f },
 					   { 0.0f, 200.0f },
-					   { 0, 0, 0, 255 } });
+					   { 0, 0, 0, 255 },
+                       50,
+                       75 });
 	}
 	
 	Color bg = { 0, 75, 0, 255 };
