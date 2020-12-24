@@ -2,8 +2,8 @@
 
 #### Written in C++ with SFML
 
-Entities are all blocks of variable width and height.
+Entities are all convex regular shapes of variable scales and rotations.
 
 Current features:
 - motion
-- collision detection
+- collision detection (rectangular boundaries)

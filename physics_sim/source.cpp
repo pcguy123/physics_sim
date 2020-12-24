@@ -8,25 +8,40 @@ struct Entity {
     sf::Vector2f vel;
     sf::Vector2f acc;
 	sf::Color color;
-    unsigned int width;
-    unsigned int height;
+    float width;
+    float height;
+    unsigned int sides;
+    float rot;
+    float scale;
 };
 
-void draw(const Entity& e, sf::RenderWindow& window)
+void draw(const Entity& e, sf::RenderWindow& window, const bool drawBounds)
 {
-    sf::RectangleShape rect(sf::Vector2f(e.width, e.height));
-    rect.setPosition(e.pos);
-    rect.setFillColor(e.color);
-    rect.setOutlineColor(sf::Color::White);
-    rect.setOutlineThickness(2.0f);
-    window.draw(rect);
+    sf::CircleShape shape(e.width/2, e.sides);
+    shape.setPosition(e.pos);
+    shape.setRotation(e.rot);
+    shape.setScale(e.scale, e.scale);
+    shape.setFillColor(e.color);
+    shape.setOutlineColor(sf::Color::White);
+    shape.setOutlineThickness(2.0f);
+    window.draw(shape);
+
+    if (drawBounds)
+    {
+        sf::RectangleShape rect(sf::Vector2f(shape.getGlobalBounds().width, shape.getGlobalBounds().height));
+        rect.setPosition(shape.getGlobalBounds().left, shape.getGlobalBounds().top);
+        rect.setFillColor(sf::Color::Transparent);
+        rect.setOutlineColor(sf::Color::Red);
+        rect.setOutlineThickness(2.0f);
+        window.draw(rect);
+    }
 }
 
-void drawAll(const std::vector<Entity>& v, sf::RenderWindow& window)
+void drawAll(const std::vector<Entity>& v, sf::RenderWindow& window, const bool drawBounds)
 {
 	for (int i = 0; i < v.size(); i++)
 	{
-		draw(v[i], window);
+		draw(v[i], window, drawBounds);
 	}
 }
 
@@ -79,14 +94,17 @@ int main(int argc, char* args[])
     // window.setFramerateLimit(60);
 
 	std::vector<Entity> es;
-	for (int i = 0; i < 5; i++)
+	for (unsigned int i = 0; i < 5; i++)
 	{
-		es.push_back({ sf::Vector2f(0.0f, 300.0f), 
+		es.push_back({ sf::Vector2f(0.0f, 300.0f),
 					   sf::Vector2f((float)(50 * i + 100), -300.f),
 					   sf::Vector2f(0.0f, 200.0f),
 					   sf::Color(0, 0, 0, 255),
                        50,
-                       75 });
+                       75,
+                       3 + i,
+                       0,
+                       1 });
 	}
 	
 	sf::Color bg = sf::Color::Black;
@@ -130,7 +148,7 @@ int main(int argc, char* args[])
 
 		updateAll(es, dt);
         checkAllCollisions(es);
-		drawAll(es, window);
+		drawAll(es, window, false);
         
         window.display();
 	}
