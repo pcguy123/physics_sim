@@ -1,6 +1,6 @@
 # 2D Physics Simulator
 
-#### Written in C++ with SDL2
+#### Written in C++ with SFML
 
 Entities are all blocks of variable width and height.
 
